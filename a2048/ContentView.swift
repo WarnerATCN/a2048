@@ -15,7 +15,7 @@ struct ContentView: View {
     
     @ObservedObject var UserData: MainData = MainData()
     
-    @State var pos: (x: Int, y: Int) = (0, 0)
+//    @State var pos: (x: Int, y: Int) = (0, 0)
     
     var body: some View {
         VStack{
@@ -24,13 +24,15 @@ struct ContentView: View {
                 BackgroundGrid()
 //                SingleCard(index: self.$pos, original: (x: 0, y: 0))
                 ForEach(UserData.Cards) { item in
-                    SingleCard(card: item)
+                    item
                         .environmentObject(self.UserData)
+                        .animation(.spring(), value: item.coordinates)
                 }
                 Image(systemName: "")
                     .resizable()
                     .onTapGesture {
-                        self.UserData.move(in: .left)
+//                        self.UserData.move(in: .left)
+                       
                     }
                     .gesture(
                         DragGesture()
@@ -53,7 +55,9 @@ struct ContentView: View {
                                         direction = .up
                                     }
                                 }
-                                self.UserData.move(in: direction)
+                                if self.UserData.move(in: direction){
+                                    self.UserData.addNew()
+                                }
                             })
                     )
             }

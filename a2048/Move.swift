@@ -25,7 +25,7 @@ func travel(in direction:Move) -> (x: Int, y:Int){
 }
 
 extension MainData{
-    func haveSpace(id:Int, direction: Move) -> (Bool,Int){
+    func haveSpace(id:UUID, direction: Move) -> (Bool,UUID?){
         let currentCard = self.Cards.first(where: {$0.id == id})!
         var position = currentCard.coordinates
         position.x += CGFloat(travel(in: direction).x)
@@ -40,11 +40,11 @@ extension MainData{
                 }
             }
             else{
-                return (true, -1)
+                return (true, emptyUUID)
             }
         }
         
-        return (false,-1)
+        return (false,emptyUUID)
     }
     
     func sort(in direction: Move){
@@ -62,18 +62,24 @@ extension MainData{
         }
     }
     
-    func move(in direction: Move){
+    func move(in direction: Move) -> Bool{
         self.sort(in: direction)
+        //是否移动过
+        var isMoved = false
         for card in self.Cards {
 //            print("trying: \(card.id)")
             var (hasSpave,newId) = self.haveSpace(id: card.id, direction: direction)
             while hasSpave {
 //                print(card.id)
-                let idx = self.Cards.firstIndex(where: {$0.id == card.id})!
+                guard let idx = self.Cards.firstIndex(where: {$0.id == card.id}) else {return isMoved}
+                
+                // 移动卡片
                 self.Cards[idx].coordinates.x += CGFloat(travel(in: direction).x)
                 self.Cards[idx].coordinates.y += CGFloat(travel(in: direction).y)
+                isMoved = true
                 
-                if newId > -1{
+                if newId != emptyUUID{
+                    //合并卡片
                     print(idx)
 //                    DispatchQueue.main.async {
                     self.Cards.remove(at: idx)
@@ -90,5 +96,7 @@ extension MainData{
                 }
             }
         }
+        return isMoved
+//        addNew()
     }
 }

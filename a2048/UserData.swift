@@ -7,22 +7,30 @@
 
 import Foundation
 
-struct Card: Identifiable{
-    var id: Int
-    var num: Int
-    var coordinates: (x: CGFloat, y: CGFloat)
-}
 
 class MainData: ObservableObject{
-    @Published var Cards: [Card]
-    
+    @Published var Cards: [SingleCard]
+    let emptyUUID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")
     init() {
         self.Cards = []
-        self.Cards.append(Card(id: self.Cards.count, num: 2, coordinates: (x: 1, y: 1)))
-        self.Cards.append(Card(id: self.Cards.count, num: 2, coordinates: (x: 1, y: 2)))
-        self.Cards.append(Card(id: self.Cards.count, num: 2, coordinates: (x: 2, y: 2)))
+        addNew()
     }
-    func add(card: Card){
-        self.Cards.append(card)
+    func addNew(){
+        if self.Cards.count < 16{
+            var rndX = Int.random(in: 0...3)
+            var rndY = Int.random(in: 0...3)
+            var coordinates = Coordinates(x: CGFloat(rndX), y: CGFloat(rndY))
+            
+            while self.Cards.contains(where: { $0.coordinates.x == coordinates.x && $0.coordinates.y == coordinates.y }) {
+                // 匹配到XY完全相同的，重新随机
+                rndX = Int.random(in: 0...3)
+                rndY = Int.random(in: 0...3)
+                coordinates = Coordinates(x: CGFloat(rndX), y: CGFloat(rndY))
+            }
+            
+            let card = SingleCard(id:UUID(), num: 2,coordinates: coordinates)
+            self.Cards.append(card)
+            
+        }
     }
 }
