@@ -15,54 +15,79 @@ struct ContentView: View {
     
     @ObservedObject var UserData: MainData = MainData()
     
-//    @State var pos: (x: Int, y: Int) = (0, 0)
+    @State var isFull: Bool = false
     
     var body: some View {
-        VStack{
+            
+            VStack{
 
-            ZStack {
-                BackgroundGrid()
-//                SingleCard(index: self.$pos, original: (x: 0, y: 0))
-                ForEach(UserData.Cards) { item in
-                    item
-                        .environmentObject(self.UserData)
-                        .animation(.spring(), value: item.coordinates)
-                }
-                Image(systemName: "")
-                    .resizable()
-                    .onTapGesture {
-//                        self.UserData.move(in: .left)
-                       
+                Text("Score:\(self.UserData.Score)")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .padding()
+                ZStack {
+                    
+                    BackgroundGrid()
+                    ForEach(UserData.Cards) { item in
+                        item
+                            .environmentObject(self.UserData)
                     }
-                    .gesture(
-                        DragGesture()
-                            .onEnded({ val in
-                                let translation = val.translation
-                                var direction: Move = .down
-                                if abs(translation.width) > abs(translation.height){
-                                    if translation.width>0{
-                                        direction = .right
+                    
+                    Image(systemName: "")
+                        .resizable()
+                        .gesture(
+                            DragGesture()
+                                .onEnded({ val in
+                                    let translation = val.translation
+                                    var direction: Move = .down
+                                    if abs(translation.width) > abs(translation.height){
+                                        if translation.width>0{
+                                            direction = .right
+                                        }
+                                        else{
+                                            direction = .left
+                                        }
+                                    }
+                                    else if abs(translation.height) > abs(translation.width){
+                                        if translation.height>0{
+                                            direction = .down
+                                        }
+                                        else{
+                                            direction = .up
+                                        }
+                                    }
+                                    if self.UserData.move(in: direction){
+                                        self.UserData.addNew()
                                     }
                                     else{
-                                        direction = .left
+                                        isFull = UserData.Cards.count == 16
                                     }
-                                }
-                                else if abs(translation.height) > abs(translation.width){
-                                    if translation.height>0{
-                                        direction = .down
-                                    }
-                                    else{
-                                        direction = .up
-                                    }
-                                }
-                                if self.UserData.move(in: direction){
-                                    self.UserData.addNew()
-                                }
-                            })
-                    )
+                                })
+                        )
+                }
+                .frame(width: min(maxWidth, maxHeight)*0.9, height: min(maxWidth, maxHeight)*0.9)
+                .alert("You Lost!", isPresented: self.$isFull) {
+                    Button("Replay") {
+                        self.UserData.Cards.removeAll()
+                        self.UserData.Score = 0
+                        self.UserData.addNew()
+                        self.isFull = false
+                    }
+                    Button("Cancel"){
+                        //
+                    }
+                }
+                .padding(.bottom)
+                Image(systemName: "arrow.clockwise")
+                    .resizable()
+                    .frame(width: 50, height: 50)
+                    .onTapGesture {
+                        self.UserData.Cards.removeAll()
+                        self.UserData.Score = 0
+                        self.UserData.addNew()
+                        self.isFull = false
+                    }
             }
-            .frame(width: min(maxWidth, maxHeight)*0.8, height: min(maxWidth, maxHeight)*0.8)
-        }
     }
 }
 

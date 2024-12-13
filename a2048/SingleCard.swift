@@ -25,8 +25,8 @@ struct SingleCard: View, Identifiable {
     
     var body: some View {
         GeometryReader { geometry in
-            let cellWidth = geometry.size.width / CGFloat( lenth)
-            let cellHeight = geometry.size.height / CGFloat( lenth)
+            let cellWidth = (geometry.size.width - spacing*CGFloat(lenth-1)) / CGFloat( lenth)
+            let cellHeight = (geometry.size.height - spacing*CGFloat(lenth-1)) / CGFloat( lenth)
             ZStack{
                 Rectangle()
                 Text(String(self.num))
@@ -36,20 +36,20 @@ struct SingleCard: View, Identifiable {
             }
             .frame(width: cellWidth, height: cellHeight)
             .cornerRadius(8)
-            .foregroundStyle(.yellow)
+            .foregroundStyle(Color(String(self.num)))
             .scaleEffect(scale)
             .offset(
                 x: self.coordinates.x * (cellWidth + self.spacing),
                 y: self.coordinates.y * (cellHeight + self.spacing)
             )
+            .animation(.spring(), value: coordinates)
+            .animation(.easeInOut(duration: 0.5), value: num)
+            
             .onAppear {
                 withAnimation(.easeIn(duration: 0.3)) {
                     //
                     self.scale = 1
-                } completion: {
-                    //
                 }
-
             }
             .onDisappear {
                 withAnimation(.easeOut(duration: 0.3)) {

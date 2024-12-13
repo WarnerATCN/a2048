@@ -86,6 +86,7 @@ extension MainData{
 //                    }
                     var oldCard = self.Cards.first(where: {$0.id == newId})!
                     oldCard.num *= 2
+                    self.Score += oldCard.num
                     if let i = self.Cards.firstIndex(where: {$0.id == newId}){
                         self.Cards[i] = oldCard
                     }

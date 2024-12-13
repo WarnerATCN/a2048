@@ -10,6 +10,7 @@ import Foundation
 
 class MainData: ObservableObject{
     @Published var Cards: [SingleCard]
+    @Published var Score: Int = 0
     let emptyUUID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")
     init() {
         self.Cards = []
