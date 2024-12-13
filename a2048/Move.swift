@@ -62,6 +62,40 @@ extension MainData{
         }
     }
     
+    func canMove() -> Bool{
+        // 使用真实卡的副本测试
+        var cards = self.Cards
+        
+        var directions:[Move] = [.up, .down, .left, .right]
+        for direction in directions{
+            // 按方向进行排序
+            cards.sort { data1, data2 in
+                switch direction{
+                case .up:
+                    return data1.coordinates.y < data2.coordinates.y  // 上：y 越小越优先
+                case .down:
+                    return data1.coordinates.y > data2.coordinates.y  // 下：y 越大越优先
+                case .left:
+                    return data1.coordinates.x < data2.coordinates.x  // 左：x 越小越优先
+                case .right:
+                    return data1.coordinates.x > data2.coordinates.x  // 右：x
+                }
+            }
+            // 遍历卡片，查看有没有位可以合并的
+            for card in cards {
+                var (hasSpace,newId) = self.haveSpace(id: card.id, direction: direction)
+                while hasSpace{
+                    // 可合并，则可继续移动，返回true
+                    if newId != emptyUUID{
+                        return true
+                    }
+                    (hasSpace,newId) = self.haveSpace(id: card.id, direction: direction)
+                }
+            }
+        }
+        return false
+    }
+    
     func move(in direction: Move) -> Bool{
         self.sort(in: direction)
         //是否移动过

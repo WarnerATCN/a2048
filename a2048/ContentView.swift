@@ -16,11 +16,14 @@ struct ContentView: View {
     @ObservedObject var UserData: MainData = MainData()
     
     @State var isFull: Bool = false
+    @State var showHighSocres: Bool = false
     
     var body: some View {
             
             VStack{
-
+                Button("High Scores") {
+                    self.showHighSocres.toggle()
+                }
                 Text("Score:\(self.UserData.Score)")
                     .font(.largeTitle)
                     .fontWeight(.bold)
@@ -60,7 +63,10 @@ struct ContentView: View {
                                         self.UserData.addNew()
                                     }
                                     else{
-                                        isFull = UserData.Cards.count == 16
+                                        if UserData.Cards.count == 16 && !UserData.canMove() {
+                                            UserData.saveHighScores()
+                                            self.isFull = true
+                                        }
                                     }
                                 })
                         )
@@ -87,6 +93,9 @@ struct ContentView: View {
                         self.UserData.addNew()
                         self.isFull = false
                     }
+            }
+            .sheet(isPresented: self.$showHighSocres) {
+                HighScores(UserData: self.UserData)
             }
     }
 }

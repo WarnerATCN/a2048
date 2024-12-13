@@ -11,7 +11,10 @@ import Foundation
 class MainData: ObservableObject{
     @Published var Cards: [SingleCard]
     @Published var Score: Int = 0
+    @Published var HighScores: [Int] = []
+    private let highScoreKey = "HighScore"
     let emptyUUID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")
+    
     init() {
         self.Cards = []
         addNew()
@@ -32,6 +35,17 @@ class MainData: ObservableObject{
             let card = SingleCard(id:UUID(), num: 2,coordinates: coordinates)
             self.Cards.append(card)
             
+        }
+    }
+    func saveHighScores(){
+        self.HighScores.append(self.Score)
+        self.HighScores.sort(by: >)
+        self.HighScores = Array(self.HighScores.prefix(10))
+        UserDefaults.standard.set(self.HighScores, forKey: highScoreKey)
+    }
+    func loadHighScores(){
+        if let historyScore = UserDefaults.standard.array(forKey: highScoreKey) as? [Int]{
+            self.HighScores = historyScore
         }
     }
 }
