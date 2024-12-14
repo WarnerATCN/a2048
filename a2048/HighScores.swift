@@ -5,11 +5,19 @@
 //  Created by Warner Kuo on 2024/12/14.
 //
 
+
 import SwiftUI
 
 struct HighScores: View {
+    @ObservedObject var UserData: MainData = MainData()
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        List {
+            ForEach(UserData.HighScores, id: \.self) { item in
+                Text(String(item))
+            }
+        }
+        .navigationTitle("High Scores")
     }
 }
 
