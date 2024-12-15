@@ -7,12 +7,18 @@
 
 import Foundation
 
+struct HighScore: Identifiable, Codable{
+    var id = UUID()
+    var score:Int
+    var name:String
+}
 
 class MainData: ObservableObject{
     @Published var Cards: [SingleCard]
     @Published var Score: Int = 0
-    @Published var HighScores: [Int] = []
-    private let highScoreKey = "HighScore"
+    @Published var HighScores: [HighScore] = []
+//    @Published var HighScores: [HighScore] = [HighScore(score: 34340, name: "warner") , HighScore(score: 14340, name: "warner")]
+    private let highScoreKey = "HighScore1"
     let emptyUUID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")
     
     init() {
@@ -37,15 +43,21 @@ class MainData: ObservableObject{
             
         }
     }
-    func saveHighScores(){
-        self.HighScores.append(self.Score)
-        self.HighScores.sort(by: >)
+    func saveHighScores(name:String = "Warner"){
+        let historyScore:HighScore = HighScore(score: self.Score, name: name)
+        self.HighScores.append(historyScore)
+        self.HighScores.sort(by: {$0.score > $1.score})
         self.HighScores = Array(self.HighScores.prefix(10))
-        UserDefaults.standard.set(self.HighScores, forKey: highScoreKey)
+        
+        if let encoded = try? JSONEncoder().encode(self.HighScores){
+            UserDefaults.standard.set(encoded, forKey: highScoreKey)
+        }
     }
     func loadHighScores(){
-        if let historyScore = UserDefaults.standard.array(forKey: highScoreKey) as? [Int]{
-            self.HighScores = historyScore
+        if let historyScore = UserDefaults.standard.data(forKey: highScoreKey){
+            if let decodedScores = try? JSONDecoder().decode([HighScore].self, from: historyScore){
+                self.HighScores = decodedScores
+            }
         }
     }
 }

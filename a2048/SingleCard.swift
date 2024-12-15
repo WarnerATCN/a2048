@@ -32,7 +32,7 @@ struct SingleCard: View, Identifiable {
                 Text(String(self.num))
                     .foregroundStyle(.white)
                     .fontWeight(.heavy)
-                    .font(.largeTitle)
+                    .font(self.num > 512 ? .title : .largeTitle)
             }
             .frame(width: cellWidth, height: cellHeight)
             .cornerRadius(8)
