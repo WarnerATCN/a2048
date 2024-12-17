@@ -16,11 +16,11 @@ struct SingleCard: View, Identifiable {
     var id: UUID
     var num: Int
     var coordinates: Coordinates
-    
-    let  lenth = 4
+    var willRemove:Bool = false
+    let lenth = 4
     let spacing: CGFloat = 10
     
-    @EnvironmentObject var UserData: MainData
+//    @EnvironmentObject var UserData: MainData
     @State private var scale: CGFloat = 0.1 // 初始缩放比例从 0.1 开始
     
     var body: some View {
@@ -52,7 +52,7 @@ struct SingleCard: View, Identifiable {
                 }
             }
             .onDisappear {
-                withAnimation(.easeOut(duration: 0.3)) {
+                withAnimation(.easeOut(duration: 0.9)) {
                     self.scale = 0.1
                 }
             }

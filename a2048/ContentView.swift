@@ -41,7 +41,7 @@ struct ContentView: View {
                     BackgroundGrid()
                     ForEach(UserData.Cards) { item in
                         item
-                            .environmentObject(self.UserData)
+//                            .environmentObject(self.UserData)
                     }
                     Image(systemName: "")
                         .resizable()

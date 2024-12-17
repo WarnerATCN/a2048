@@ -28,18 +28,21 @@ extension MainData{
     func haveSpace(id:UUID, direction: Move) -> (Bool,UUID?){
         let currentCard = self.Cards.first(where: {$0.id == id})!
         var position = currentCard.coordinates
+        // 模拟位移
         position.x += CGFloat(travel(in: direction).x)
         position.y += CGFloat(travel(in: direction).y)
         
         if position.x >= 0 && position.x<=3 && position.y >= 0 && position.y <= 3{
             if let card = self.Cards.first(where: { card in
-                card.coordinates.x == position.x && card.coordinates.y == position.y
+                card.coordinates.x == position.x && card.coordinates.y == position.y && !card.willRemove
             }){
+                // 找到移动后目标位置上会有相同的数字， 可以合并，返回目标上的卡片
                 if card.num == currentCard.num{
                     return (true, card.id)
                 }
             }
             else{
+                // 没找到的话，就是可以位移，也无需合并
                 return (true, emptyUUID)
             }
         }
@@ -66,7 +69,7 @@ extension MainData{
         // 使用真实卡的副本测试
         var cards = self.Cards
         
-        var directions:[Move] = [.up, .down, .left, .right]
+        let directions:[Move] = [.up, .down, .left, .right]
         for direction in directions{
             // 按方向进行排序
             cards.sort { data1, data2 in
@@ -101,12 +104,9 @@ extension MainData{
         //是否移动过
         var isMoved = false
         for card in self.Cards {
-//            print("trying: \(card.id)")
             var (hasSpave,newId) = self.haveSpace(id: card.id, direction: direction)
             while hasSpave {
-//                print(card.id)
                 guard let idx = self.Cards.firstIndex(where: {$0.id == card.id}) else {return isMoved}
-                
                 // 移动卡片
                 self.Cards[idx].coordinates.x += CGFloat(travel(in: direction).x)
                 self.Cards[idx].coordinates.y += CGFloat(travel(in: direction).y)
@@ -114,15 +114,15 @@ extension MainData{
                 
                 if newId != emptyUUID{
                     //合并卡片
-                    print(idx)
-//                    DispatchQueue.main.async {
-                    self.Cards.remove(at: idx)
-//                    }
-                    var oldCard = self.Cards.first(where: {$0.id == newId})!
-                    oldCard.num *= 2
-                    self.Score += oldCard.num
+                    self.Cards[idx].num *= 2
+                    self.Score += self.Cards[idx].num
                     if let i = self.Cards.firstIndex(where: {$0.id == newId}){
-                        self.Cards[i] = oldCard
+                        self.Cards[i].willRemove.toggle()
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2){
+                        if let i = self.Cards.firstIndex(where: {$0.id == newId}){
+                            self.Cards.remove(at: i)
+                        }
                     }
                     hasSpave = false
                     
@@ -132,6 +132,5 @@ extension MainData{
             }
         }
         return isMoved
-//        addNew()
     }
 }
